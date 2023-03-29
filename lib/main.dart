@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:permission_handler/permission_handler.dart';
 
 void main() {
   runApp(MyApp());
@@ -34,14 +36,29 @@ class _MyHomePageState extends State<MyHomePage> {
     _speech = stt.SpeechToText();
   }
 
+  Future<void> _makeEmergencyCall() async {
+    const String phoneNumber = 'tel:911';
+    if (await Permission.phone.request().isGranted) {
+      if (await canLaunch(phoneNumber)) {
+        await launch(phoneNumber);
+      } else {
+        throw 'Could not launch $phoneNumber';
+      }
+    } else {
+      throw 'Permission to access the phone is not granted.';
+    }
+  }
+
+
   void startListening() {
+    _isListening = true;
     _speech.listen(
       onResult: (result) {
         setState(() {
           _text = result.recognizedWords;
         });
         if (_text.toLowerCase() == 'help') {
-          // Call emergency number here
+          _makeEmergencyCall();
         }
       },
     );
