@@ -1,33 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:permission_handler/permission_handler.dart';
-import 'package:kavachhackathon/notification_bar.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 
-void main() {
-  runApp(VoiceDetectionClass());
-}
-
-class VoiceDetectionClass extends StatelessWidget {
+class HelpPanel extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'My App',
-      home: MyHomePage(title: 'Women\'s Safety App',),
-    );
-  }
+  _HelpPanelState createState() => _HelpPanelState();
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
+class _HelpPanelState extends State<HelpPanel> {
   late stt.SpeechToText _speech;
   bool _isListening = false;
   String _text = 'Press the button and say "help" to make an emergency call.';
@@ -90,46 +71,47 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-        centerTitle: true,
-        backgroundColor: Colors.blueGrey[900],
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.notifications),
-            onPressed: () {
-              //_showPanel(context);
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.3,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20.0),
+          topRight: Radius.circular(20.0),
+        ),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            _text,
+            style: TextStyle(fontSize: 32, color: Colors.black),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 30.0),
+          GestureDetector(
+            onTapDown: (details) {
+              startListening();
             },
+            onTapUp: (details) {
+              stopListening();
+            },
+            child: Material(
+              elevation: 5.0,
+              borderRadius: BorderRadius.circular(50.0),
+              color: Colors.blue,
+              child: SizedBox(
+                width: 70.0,
+                height: 70.0,
+                child: Icon(
+                  Icons.mic,
+                  color: Colors.white,
+                  size: 40.0,
+                ),
+              ),
+            ),
           ),
         ],
-      ),
-      backgroundColor: Colors.blueGrey[400],
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: _isListening ? Colors.red : Colors.blue,
-        onPressed: () {
-          if (_isListening) {
-            stopListening();
-          } else {
-            startListening();
-          }
-        },
-        child: Icon(
-          _isListening ? Icons.mic : Icons.mic_none,
-        ),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              _text,
-              style: TextStyle(fontSize: 32, color: Colors.white),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
       ),
     );
   }
