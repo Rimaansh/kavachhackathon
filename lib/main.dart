@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(VoiceDetectionClass());
 }
 
-class MyApp extends StatelessWidget {
+class VoiceDetectionClass extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
@@ -16,6 +16,7 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
 
@@ -34,21 +35,30 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     _speech = stt.SpeechToText();
+    initSpeechToText();
+  }
+
+  Future<void> initSpeechToText() async {
+    await _speech.initialize();
   }
 
   Future<void> _makeEmergencyCall() async {
-    const String phoneNumber = 'tel:911';
+    const phoneNumber = '+917004939484';
     if (await Permission.phone.request().isGranted) {
-      if (await canLaunch(phoneNumber)) {
-        await launch(phoneNumber);
-      } else {
-        throw 'Could not launch $phoneNumber';
-      }
+      await FlutterPhoneDirectCaller.callNumber(phoneNumber);
     } else {
-      throw 'Permission to access the phone is not granted.';
+      await Permission.phone.request();
+      if (await Permission.phone.isGranted) {
+        await FlutterPhoneDirectCaller.callNumber(phoneNumber);
+      } else {
+        throw 'Permission to access the phone is not granted.';
+      }
     }
   }
 
+  bool containsHelp(String str) {
+    return str.toLowerCase().contains('help');
+  }
 
   void startListening() {
     _isListening = true;
@@ -56,12 +66,15 @@ class _MyHomePageState extends State<MyHomePage> {
       onResult: (result) {
         setState(() {
           _text = result.recognizedWords;
+          print(_text);
         });
-        if (_text.toLowerCase() == 'help') {
+        if (containsHelp(_text) == true) {
+          print(containsHelp(_text));
           _makeEmergencyCall();
         }
       },
     );
+
     setState(() {
       _isListening = true;
     });
@@ -85,6 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
       backgroundColor: Colors.blueGrey[400],
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
+        backgroundColor: _isListening ? Colors.red : Colors.blue,
         onPressed: () {
           if (_isListening) {
             stopListening();
