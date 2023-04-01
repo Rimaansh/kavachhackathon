@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:permission_handler/permission_handler.dart';
-import 'package:kavachhackathon/notification_bar.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 
 void main() {
@@ -9,17 +8,21 @@ void main() {
 }
 
 class VoiceDetectionClass extends StatelessWidget {
+  const VoiceDetectionClass({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'My App',
-      home: MyHomePage(title: 'Women\'s Safety App',),
+      home: MyHomePage(
+        title: 'Women\'s Safety App',
+      ),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
+  MyHomePage({Key? key, required this.title}) : super(key: key);
 
   final String title;
 
@@ -30,7 +33,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   late stt.SpeechToText _speech;
   bool _isListening = false;
-  String _text = 'Press the button and say "help" to make an emergency call.';
+  String _text = 'Press the button and say "wait" to make an emergency call.';
 
   @override
   void initState() {
@@ -44,6 +47,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _makeEmergencyCall() async {
+    stopListening();
     const phoneNumber = '+917004939484';
     if (await Permission.phone.request().isGranted) {
       await FlutterPhoneDirectCaller.callNumber(phoneNumber);
@@ -58,7 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   bool containsHelp(String str) {
-    return str.toLowerCase().contains('help');
+    return str.toLowerCase().contains('wait');
   }
 
   void startListening() {
@@ -95,14 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
         centerTitle: true,
         backgroundColor: Colors.blueGrey[900],
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.notifications),
-            onPressed: () {
-              //_showPanel(context);
-            },
-          ),
-        ],
+        //actions: <Widget>[],
       ),
       backgroundColor: Colors.blueGrey[400],
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
